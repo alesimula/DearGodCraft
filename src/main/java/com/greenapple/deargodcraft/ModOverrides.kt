@@ -43,6 +43,8 @@ object ModOverrides {
         hash
     }
     val Long.hash get() = hash(0x68696672)
+    val randomLongTimed get() = 10L.hash
+    val randomIntTimed get() = randomLongTimed.toInt()
     private inline fun Block.hashId(seed: Int) = (abs(id.toLong().hash(seed)) % block.registry.entries.size).toInt()
     private inline fun Block.hashBlock(seed: Int) = block.registry.getValue(block.hashId(seed))
     private inline fun BlockState.hashBlock(seed: Int) = block.hashBlock(seed)
@@ -67,6 +69,8 @@ object ModOverrides {
     }
 }
 // </editor-fold>
+
+val <E> List<E>.timedRandom: E? get() = if (size > 0) get(ModOverrides.randomIntTimed % size) else null
 
 fun ModOverrides.overrideMethods() {
     /** doSwap **/

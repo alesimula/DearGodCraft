@@ -1,35 +1,62 @@
 package com.greenapple.deargodcraft.event
 
 import com.greenapple.deargodcraft.DearGodCraft
+import com.greenapple.deargodcraft.delegate.reflectField
+import com.greenapple.deargodcraft.timedRandom
+import com.greenapple.deargodcraft.utils.morph
+import com.greenapple.deargodcraft.utils.registry
 import net.minecraft.advancements.Advancement
 import net.minecraft.advancements.AdvancementRewards
 import net.minecraft.client.Minecraft
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity
 import net.minecraft.client.gui.advancements.AdvancementsScreen
+import net.minecraft.client.renderer.entity.BipedRenderer
 import net.minecraft.client.renderer.entity.PlayerRenderer
+import net.minecraft.entity.EntityType
+import net.minecraft.entity.MobEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.ResourceLocation
+import net.minecraft.world.World
 import net.minecraftforge.client.event.GuiScreenEvent
 import net.minecraftforge.client.event.RenderHandEvent
 import net.minecraftforge.client.event.RenderPlayerEvent
-import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.client.registry.IRenderFactory
+import net.minecraftforge.fml.client.registry.RenderingRegistry
 import net.minecraftforge.registries.GameData
 
 class RenderingEvents {
     //private val MODEL_SNOWMAN = ModelPlayerSnowMan(0)
     private val TEXTURE_SNOWMAN = ResourceLocation(DearGodCraft.MODID, "textures/entity/player_snowman.png")
 
+    private val RenderingRegistry.entityRenderersKt: MutableMap<EntityType<*>, IRenderFactory<*>> by reflectField("entityRenderers")
+    private val RenderingRegistry?.instanceKt: RenderingRegistry by reflectField("INSTANCE")
+
+    private val World.bipedTextures by lazy {
+        val minecraft = Minecraft.getInstance()
+        val world by lazy {Minecraft.getInstance().world as World}
+        val renderers = minecraft.renderManager.renderers
+        EntityType::class.registry.values.mapNotNullTo(mutableListOf()) { type->
+            (renderers[type] as? BipedRenderer<MobEntity, *>)?.run {runCatching {getEntityTexture(null)}.getOrElse {
+                (type.create(world) as? MobEntity)?.let { tempEntity ->
+                    val texture = getEntityTexture(tempEntity)
+                    tempEntity.remove()
+                    texture
+                }
+            }}
+        }
+    }
+
+    private var playerTextureLoaded = false
+
     private fun PlayerRenderer.onRenderPlayer(player: PlayerEntity) {
+        val clientPlayer = player as? AbstractClientPlayerEntity
+        morph(player, null, player.world.bipedTextures.apply {if (!playerTextureLoaded && clientPlayer!=null) {playerTextureLoaded = true; add(clientPlayer.locationSkin)}}.timedRandom)
         /*if (!player.isInWater) player.getActivePotionEffect(DearGodCraft.Effects.MORPH_SNOWMAN)?.also { effect ->
             effect.durationKt = 72011
             morph(player, MODEL_SNOWMAN, TEXTURE_SNOWMAN)
         }
         else if (morph(player)) player.removePotionEffect(DearGodCraft.Effects.MORPH_SNOWMAN)*/
-    }
-
-    @SubscribeEvent
-    fun onRenderBlock(event: RenderWorldLastEvent) {
-        //DearGodCraft.Blocks.GLACIAL_TREE_LEAVES.renderType
     }
 
     @SubscribeEvent

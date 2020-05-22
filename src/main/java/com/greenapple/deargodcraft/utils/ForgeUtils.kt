@@ -11,10 +11,12 @@ import net.minecraftforge.fml.loading.FMLEnvironment
 import net.minecraftforge.registries.ForgeRegistry
 import net.minecraftforge.registries.ForgeRegistryEntry
 import net.minecraftforge.registries.RegistryManager
+import kotlin.reflect.KClass
 
 inline fun <E : Event>IEventBus.addListenerKt(crossinline method: (E) -> Any) = addListener<E> { event-> method.invoke(event)}
 
 private val <T : ForgeRegistryEntry<T>, C : Class<T>> C.registry : ForgeRegistry<T> by lazyProperty {RegistryManager.ACTIVE.getRegistry<T>(this) as ForgeRegistry<T>}
+val <T : ForgeRegistryEntry<T>, C : KClass<T>> C.registry get() = java.registry
 val <T : ForgeRegistryEntry<T>> T.registry; get() = this.registryType.registry
 val <T : ForgeRegistryEntry<T>> T.id; get() = this.registry.getID(this)
 
