@@ -51,9 +51,9 @@ object ModOverrides {
             && (runCatching {!isCollisionShapeOpaque(null, null)}.getOrDefault(false) || runCatching {other.isCollisionShapeOpaque(null, null)}.getOrDefault(true))
             && other.block !in voidBlocks)
     val voidBlocks = listOf(Blocks.AIR, Blocks.CAVE_AIR, Blocks.VOID_AIR)
-    fun BlockState.hashedState(seed: Int) = when (block) {
-        net.minecraft.block.Blocks.WATER -> net.minecraft.block.Blocks.LAVA.defaultState
-        net.minecraft.block.Blocks.LAVA -> net.minecraft.block.Blocks.WATER.defaultState
+    fun BlockState.hashState(seed: Int) = when (block) {
+        Blocks.WATER -> Blocks.LAVA.defaultState
+        Blocks.LAVA -> Blocks.WATER.defaultState
         in voidBlocks -> this
         else -> hashBlock(seed).defaultState.let { new ->
             if (isCompatible(new)) new else new.hashBlock(seed).defaultState.let { new ->
@@ -71,10 +71,10 @@ object ModOverrides {
 fun ModOverrides.overrideMethods() {
     /** doSwap **/
     PalettedContainer::class.replaceMethodOrFallback("func_222643_a") { (index, state) -> this!!
-        (state as? BlockState) ?: RedefineUtils.fallback()
+        if (state !is BlockState) RedefineUtils.fallback()
         index as Int
         this as PalettedContainer<BlockState>
-        val i = paletteKt.idFor(state.hashedState(this.hashCode()))
+        val i = paletteKt.idFor(state.hashState(this.hashCode()))
         val j = storageKt.swapAt(index, i)
         val t = paletteKt[j]
         (t ?: defaultStateKt)
