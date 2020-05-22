@@ -1,0 +1,47 @@
+# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
+modLoader="javafml"
+# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
+loaderVersion="[26,)"
+# A URL to refer people to when problems occur with this mod
+#issueTrackerURL="http://my.issue.tracker/"
+# A file name (in the root of the mod JAR) containing a logo for display
+#logoFile="logo.png"
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]]
+# The modid of the mod
+modId="greenapple_deargodcraft"
+# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
+version="§4${file.jarVersion}§r"
+ # A display name for the mod
+displayName="§4§lD§ke§r§4§larG§ko§r§4§ldC§kra§r§4§lft§r"
+# A URL to query for updates for this mod. See the JSON update specification <here>
+# updateJSONURL="http://myurl.me/"
+# A URL for the "homepage" for this mod, displayed in the mod UI
+#displayURL=""
+# A text field displayed in the mod UI
+#credits=""
+# A text field displayed in the mod UI
+authors="§a§n§oGreenApple§r"
+# The description text for the mod (multi line!)
+description='''
+§4§kWhere is your god now§r
+'''
+# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+[[dependencies.greenapple_deargodcraft]]
+    # the modid of the dependency
+    modId="forge"
+    # Does this dependency have to exist - if not, ordering below must be specified
+    mandatory=true
+    # The version range of the dependency
+    versionRange="[27,)"
+    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT or SERVER
+    side="BOTH"
+# Here's another dependency
+[[dependencies.greenapple_deargodcraft]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.15.2]"
+    ordering="NONE"
+    side="BOTH"
